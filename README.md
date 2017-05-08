@@ -23,10 +23,10 @@ A sensor can have one or more related rules or features, and take the latest rul
 
 ```json
 {
-    "id": "Uniq Identification for each rule"
+    "id": "Uniq Identification for each rule",
     "sensorId": "Id of the sensor that the rule applies to",
-    "ruleOp": 'An enum value ("gt", "lt", "ge", "le", "eq") for the operator of the rule',
-    "ruleType": 'An enum value ("value", "sensor", "trdParty") for the data type of the rule',
+    "ruleOp": "An enum value ('gt', 'lt', 'ge', 'le', 'eq') for the operator of the rule",
+    "ruleType": "An enum value ('value', 'sensor', 'trdParty') for the data type of the rule",
     "ruleObj": "The object of the rule, which is determined by ruleOp and ruleType",
     "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule", 
     "createdAt": "The timestamp of creating this rule"
@@ -55,7 +55,7 @@ A sensor can have one or more related rules or features, and take the latest rul
 ```json
 {
 	"id": "Uniq Identification for each event",
-    "eventType": 'An enum value ("rule", "feature", "box") for the type of the event',
+    "eventType": "An enum value ('rule', 'feature', 'box') for the type of the event",
     "eventId": "ruleId/featureId/boxEventId",
     "details": {...},
     "createdAt": "The timestamp of creating this event"
