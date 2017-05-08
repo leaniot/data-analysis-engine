@@ -23,8 +23,8 @@ A sensor can have one or more related rules or features, and take the latest rul
 
 ```json
 {
-    "id": Uniq Identification for each rule
-    "sensorId": Id of the sensor that the rule applies to,
+    "id": "Uniq Identification for each rule"
+    "sensorId": "Id of the sensor that the rule applies to",
     "ruleOp": An enum value ("gt", "lt", "ge", "le", "eq") for the operator of the rule,
     "ruleType": An enum value ("value", "sensor", "trdParty") for the data type of the rule,
     "ruleObj": The object of the rule, which is determined by ruleOp and ruleType,
@@ -39,8 +39,8 @@ A sensor can have one or more related rules or features, and take the latest rul
 
 ```json
 {
-    “id”: Uniq Identification for each feature,
-    “sensorId”: Id of the sensor that the rule applies to,
+    "id": `Uniq Identification for each feature`,
+    "sensorId": Id of the sensor that the rule applies to,
     "featureType": An enum value (TBD) for the feature type,
     "featureValue": The value of the feature, which is going to be a vector or a matrix,
     "observers": [userId1, userId2, ... ] The list of users who have the rights to subscribe and check the rule, 
