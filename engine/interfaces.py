@@ -13,7 +13,7 @@ from rabbitmq_hub import PubSubHub, Pub, Sub
 
 class Dao():
 	"""
-	Interface (abstract class) for Data Access Operations. An DAO is an abstract dictionary in 
+	Interface (abstract class) for Data Access Operations. A DAO is an abstract dictionary in 
 	Python, where you can get access to data by indicating its sensor id.
 
 	>>> dao = Dao(...)
@@ -77,25 +77,27 @@ class Dao():
 
 
 
-# class Subscriber():
-# 	"""
-# 	Interface (abstract class) for subscribing 
+class Subscriber():
+	"""
+	Interface (abstract class) for subscribing a specific rabbitmq. A subscriber provides a 
+	static method for user to overwrite their callback, which will be triggerred when rabbitmq
+	push a new message that the subscriber has subscribed. 
 
-# 	"""
+	"""
 
-# 	def __init__(self, urls):
-# 		h = PubSubHub.create(urls)
-# 		h.subscribe("leaniot.realtime.data", callback=self.callback)
-#         # @h.subscribe("leaniot.realtime.data")
-#         h.run()
+	def __init__(self, urls, channel):
+		h = PubSubHub.create(urls)
+		h.subscribe(channel, callback=self.callback)
+        # @h.subscribe("leaniot.realtime.data")
+        h.run()
 
-# 	@staticmethod
-# 	def callback(topic, msg):
-# 		print('user_callback: topic: %s, msg: %s' % (topic, msg))
+	@staticmethod
+	def callback(topic, msg):
+		print('User Callback: topic: %s, msg: %s' % (topic, msg))
 
 
 
-# class Publisher():
-# 	"""
+class Publisher():
+	"""
 
-# 	"""
+	"""

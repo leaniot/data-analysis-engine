@@ -29,7 +29,7 @@ A sensor can have one or more related rules or features, and take the latest rul
     "rule_type": "An enum value ('value', 'sensor', 'trdParty') for the data type of the rule",
     "rule_obj": "The object of the rule, which is determined by ruleOp and ruleType",
     "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule", 
-    "notification_switch": true/false,
+    "is_push": true/false,
     "created_at": "The timestamp of creating this rule"
 }
 ```
@@ -45,7 +45,7 @@ A sensor can have one or more related rules or features, and take the latest rul
     "feature_type": "An enum value (TBD) for the feature type",
     "feature_value": "The value of the feature, which is going to be a vector or a matrix",
     "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule",
-    "notification_switch": true/false, 
+    "is_push": true/false, 
     "created_at": "The timestamp of creating this feature"
 }
 ```

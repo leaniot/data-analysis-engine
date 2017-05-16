@@ -1,7 +1,10 @@
-import requests
-
 from engine import interfaces
 
-class Rule(interfaces.Dao):
+class RuleChecker(interfaces.Dao, interfaces.Subscriber, interfaces.Publisher):
+	"""
 
-	# 
+
+	"""
+
+	def __init__(self):
+		pass
