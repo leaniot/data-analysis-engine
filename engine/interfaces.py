@@ -12,16 +12,24 @@ import requests
 
 class Dao():
 	"""
+	Interface (abstract class) for Data Access Operations. An DAO is an abstract dictionary in 
+	Python, where you can get access to data by indicating its sensor id.
 
+	>>> dao = Dao(...)
+	>>> dao["sensor_id_1"] = {...} # Assigning value
+	>>> print dao["sensor_id_2"]   # Getting value
 	"""
 
 	def __init__(self, url, email, password):
 		self.url     = url
 		self.token   = self.get_access_token(email, password)
-		self.headers = { "Authorization": "JWT %s" % self.token, "Content-Type": "application/json" }
+		self.headers = { "Authorization": "JWT 123%s" % self.token, "Content-Type": "application/json" }
 		
 	def __getitem__(self, sensor_id):
 		r = requests.get(url=self.url, headers=self.headers, params={ "sensor_id": sensor_id })
+		print r.status_code
+		print r.json()
+
 		# status_code starts with 20*
 		if r.status_code / 10 == 20:
 			return r.json()
@@ -58,13 +66,6 @@ class Dao():
 			raise Exception("Failed to get access token.")
 
 
-print Dao.get_access_token("yzg963@gmail.com", "yzg134530")
-dao = Dao("http://www.mageia.me/api/1.0.0/event_rules/", "yzg963@gmail.com", "yzg134530")
-dao[""]
-# dao[""] = {
-#     "rule_op": "lt",
-#     "rule_type": "sensor",
-#     "rule_obj": "{}",
-#     "observers": "user1,user2,user3"
-# }
+
+
 
