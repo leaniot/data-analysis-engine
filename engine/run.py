@@ -1,6 +1,6 @@
 import requests
 
-from gensim import interfaces
+from engine import interfaces
 
 class Rule(interfaces.Dao):
 

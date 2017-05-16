@@ -9,6 +9,7 @@ is provided in the interface itself, so that the interfaces can be subclassed)
 """
 
 import requests
+from rabbitmq_hub import PubSubHub, Pub, Sub
 
 class Dao():
 	"""
@@ -21,18 +22,22 @@ class Dao():
 	"""
 
 	def __init__(self, url, email, password):
-		self.url     = url
-		self.token   = self.get_access_token(email, password)
-		self.headers = { "Authorization": "JWT 123%s" % self.token, "Content-Type": "application/json" }
+		self.email    = email
+		self.password = password
+		self.url      = url
+		self.token    = self.get_access_token(self.email, self.password)
+		self.headers  = { "Authorization": "JWT %s" % self.token, "Content-Type": "application/json" }
 		
 	def __getitem__(self, sensor_id):
 		r = requests.get(url=self.url, headers=self.headers, params={ "sensor_id": sensor_id })
-		print r.status_code
-		print r.json()
-
-		# status_code starts with 20*
-		if r.status_code / 10 == 20:
+		# Run with success
+		if r.status_code / 10 == 20: # status_code starts with 20*
 			return r.json()
+		# Invalid token
+		elif r.status_code == 401:
+			self.token   = self.get_access_token(self.email, self.password)
+			self.headers = { "Authorization": "JWT %s" % self.token, "Content-Type": "application/json" }
+			self.__getitem__(sensor_id)
 		else:
 			raise Exception("Failed to get value.")
 
@@ -43,6 +48,11 @@ class Dao():
 		# status_code starts with 20*
 		if r.status_code / 10 == 20:
 			return r.json()
+		# Invalid token
+		elif r.status_code == 401:
+			self.token   = self.get_access_token(self.email, self.password)
+			self.headers = { "Authorization": "JWT %s" % self.token, "Content-Type": "application/json" }
+			self.__setitem__(sensor_id, value)
 		else:
 			raise Exception("Failed to set value.")
 
@@ -67,5 +77,25 @@ class Dao():
 
 
 
+# class Subscriber():
+# 	"""
+# 	Interface (abstract class) for subscribing 
+
+# 	"""
+
+# 	def __init__(self, urls):
+# 		h = PubSubHub.create(urls)
+# 		h.subscribe("leaniot.realtime.data", callback=self.callback)
+#         # @h.subscribe("leaniot.realtime.data")
+#         h.run()
+
+# 	@staticmethod
+# 	def callback(topic, msg):
+# 		print('user_callback: topic: %s, msg: %s' % (topic, msg))
 
 
+
+# class Publisher():
+# 	"""
+
+# 	"""

@@ -7,7 +7,8 @@ import random
 import errno
 from six import string_types
 from itertools import chain
-from queue import LifoQueue, Empty, Full
+# Change queue (Py 3.*) to Queue (Py 2.7.*)
+from Queue import LifoQueue, Empty, Full
 
 # if socket.socket.__module__ == "gevent.socket":
 if socket.socket.__module__ == "gevent._socket3":
