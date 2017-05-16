@@ -15,7 +15,7 @@ The engine mainly contains two key components:
 
 ### Data Model
 
-In order to let front end have more autonomous rights on re-alignment of business, and a flexible but dependable back end micro service, and a finer-grained design of event, we defined a rule/feature model for each of the sensor. The event database is used to store all the notifications that users have registered for further statistical analysis and advanced visualization.
+In order to let front-end have more autonomous rights on re-alignment of business, a flexible but dependable back-end micro service, and a finer-grained design of event model, we defined a rule/feature model for each of the sensor. In addtion, the event database is used to store all the notifications that users have registered for further statistical analysis and advanced visualization, we also defined the event model at last of this chapter.
 
 #### Rules Library
 
@@ -24,12 +24,13 @@ A sensor can have one or more related rules or features, and take the latest rul
 ```json
 {
     "id": "Uniq Identification for each rule",
-    "sensorId": "Id of the sensor that the rule applies to",
-    "ruleOp": "An enum value ('gt', 'lt', 'ge', 'le', 'eq') for the operator of the rule",
-    "ruleType": "An enum value ('value', 'sensor', 'trdParty') for the data type of the rule",
-    "ruleObj": "The object of the rule, which is determined by ruleOp and ruleType",
+    "sensor": "Id of the sensor that the rule applies to",
+    "rule_op": "An enum value ('gt', 'lt', 'ge', 'le', 'eq') for the operator of the rule",
+    "rule_type": "An enum value ('value', 'sensor', 'trdParty') for the data type of the rule",
+    "rule_obj": "The object of the rule, which is determined by ruleOp and ruleType",
     "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule", 
-    "createdAt": "The timestamp of creating this rule"
+    "notification_switch": true/false,
+    "created_at": "The timestamp of creating this rule"
 }
 ```
 
@@ -40,11 +41,12 @@ A sensor can have one or more related rules or features, and take the latest rul
 ```json
 {
     "id": "Uniq Identification for each feature",
-    "sensorId": "Id of the sensor that the rule applies to",
-    "featureType": "An enum value (TBD) for the feature type",
-    "featureValue": "The value of the feature, which is going to be a vector or a matrix",
-    "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule", 
-    "createdAt": "The timestamp of creating this feature"
+    "sensor": "Id of the sensor that the rule applies to",
+    "feature_type": "An enum value (TBD) for the feature type",
+    "feature_value": "The value of the feature, which is going to be a vector or a matrix",
+    "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule",
+    "notification_switch": true/false, 
+    "created_at": "The timestamp of creating this feature"
 }
 ```
 
@@ -55,10 +57,10 @@ A sensor can have one or more related rules or features, and take the latest rul
 ```json
 {
 	"id": "Uniq Identification for each event",
-    "eventType": "An enum value ('rule', 'feature', 'box') for the type of the event",
-    "eventId": "ruleId/featureId/boxEventId",
+    "event_type": "An enum value ('rule', 'feature', 'box') for the type of the event",
+    "event": "ruleId/featureId/boxEventId",
     "details": {...},
-    "createdAt": "The timestamp of creating this event"
+    "created_at": "The timestamp of creating this event"
 }
 ```
 
