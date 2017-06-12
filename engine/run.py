@@ -3,8 +3,8 @@ from engine import interfaces
 class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 	"""
 	Rule Checker
-
 	
+
 
 	"""
 
@@ -18,9 +18,10 @@ class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 		self.dao = interfaces.Dao(rule_url, email, password)
 		print (self.dao["2r6Jq5jPDLhmNW4BjVzBzN"])
 		
-	@staticmethod
-	def sub_callback(topic, msg):
+	def sub_callback(self, topic, msg):
 		print ("User Callback: topic: %s, msg: %s" % (topic, msg))
+		sensor_id = msg["id"]
+		if self.dao[sensor_id]
 
 if __name__ == "__main__":
 	rc = RuleChecker()

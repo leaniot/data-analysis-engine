@@ -13,6 +13,10 @@ The engine mainly contains two key components:
 - Big Data Platform: it provides offline data mining to analyze some underlying features of sensor data that users might be interested in, or could help users make administrative decision for their industrial systems. 
 - Anomaly Detection Engine: it contains two submodules which both check the online data and analyze them by using pre-defined rules or advanced machine learning techniques, also it delivers real-time notifications for dashboard. 
 
+### Message Queue Services
+
+For handling real-time and asynchronous data feed, and providing real-time push services, two message queues have been created as shown above. One message queue is serving as a data feed, giving the latest real-time data to the subscribers. The other message queue is serving as a push notification services.
+
 ### Data Model
 
 In order to let front-end have more autonomous rights on re-alignment of business, a flexible but dependable back-end micro service, and a finer-grained design of event model, we defined a rule/feature model for each of the sensor. In addtion, the event database is used to store all the notifications that users have registered for further statistical analysis and advanced visualization, we also defined the event model at last of this chapter.
