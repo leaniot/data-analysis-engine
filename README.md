@@ -30,7 +30,7 @@ A sensor can have one or more related rules or features, and take the latest rul
     "id": "Uniq Identification for each rule",
     "sensor": "Id of the sensor that the rule applies to",
     "rule_op": "An enum value ('gt', 'lt', 'ge', 'le', 'eq') for the operator of the rule",
-    "rule_type": "An enum value ('value', 'sensor', 'trdParty') for the data type of the rule",
+    "rule_type": "An enum value ('value', 'sensor', 'trd_party') for the data type of the rule",
     "rule_obj": "The object of the rule, which is determined by ruleOp and ruleType",
     "observers": ["userId1", "userId2", ... ], "The list of users who have the rights to subscribe and check the rule", 
     "is_push": true/false,
@@ -60,7 +60,7 @@ A sensor can have one or more related rules or features, and take the latest rul
 
 ```json
 {
-	"id": "Uniq Identification for each event",
+    "id": "Uniq Identification for each event",
     "event_type": "An enum value ('rule', 'feature', 'box') for the type of the event",
     "event": "ruleId/featureId/boxEventId",
     "details": {...},
