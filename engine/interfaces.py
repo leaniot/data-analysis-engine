@@ -11,6 +11,16 @@ is provided in the interface itself, so that the interfaces can be subclassed)
 import requests
 from engine.rabbitmq_hub import PubSubHub, Pub, Sub
 
+# # These two lines enable debugging at httplib level (requests->urllib3->http.client)
+# # You will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
+# # The only thing missing will be the response.body which is not logged.
+# try:
+#     import http.client as http_client
+# except ImportError:
+#     # Python 2
+#     import httplib as http_client
+# http_client.HTTPConnection.debuglevel = 1
+
 class Dao():
 	"""
 	Interface (abstract class) for Data Access Operations. A DAO is an abstract dictionary in 
@@ -47,11 +57,11 @@ class Dao():
 			raise Exception("Failed to get value.")
 
 	def __setitem__(self, sensor_id, value):
-		json = { "sensor": sensor_id }
-		json.update(value) 
-		r = requests.post(url=self.url, headers=self.headers, json=json)
+		json_data = { "sensor": sensor_id }
+		json_data.update(value)
+		r = requests.post(url=self.url, headers=self.headers, json=json_data)
 		# status_code starts with 20*
-		if r.status_code / 10 == 20:
+		if int(r.status_code / 10) == 20:
 			return r.json()
 		# Invalid token
 		elif r.status_code == 401:
