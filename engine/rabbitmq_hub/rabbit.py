@@ -39,18 +39,16 @@ class RabbitConnection(object):
         self.user, self.password = user, password
         self.virtual_host = virtual_host
         self.connkwargs = {
-                'host': self.host,
-                'userid': self.user,
-                'password': self.password,
-                'virtual_host': self.virtual_host,
-                }
+            'host': self.host, 'userid': self.user,
+            'password': self.password,
+            'virtual_host': self.virtual_host
+        }
         self.connkwargs.update(kwargs)
         self._connection = None
         self._channel = None
         self._exchanges = set()
         self._description_args = {
-            'host': self.host,
-            'port': self.port,
+            'host': self.host, 'port': self.port,
             'virtual_host': self.virtual_host
         }
         self._handlers = {}

@@ -2,6 +2,8 @@ import json
 import socket
 import logging
 import amqp
+import string
+import random
 from .connection import ConnectionCluster, wait_func
 from .rabbit import RabbitConnection
 try:
@@ -12,18 +14,23 @@ except ImportError:
 logger = logging.getLogger(__file__)
 
 
+def random_string(length):
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+
+
 class PubSubHub(object):
-    def __init__(self, connection_class=RabbitConnection, queue_group=None, **kwargs):
-        self.pub_conncluster = ConnectionCluster(connection_class=connection_class, max_connections=100, **kwargs)
-        self.sub_conncluster = ConnectionCluster(connection_class=connection_class, max_connections=1, **kwargs)
-        self.queue_group = queue_group or 'none'
+    def __init__(self, url=None, queue_group=None, connection_class=RabbitConnection, **kwargs):
+        self.queue_group = queue_group or random_string(8)
+        params = self.parse_url(url, **kwargs)
+        self.pub_conncluster = ConnectionCluster(connection_class=connection_class, max_connections=100, **params)
+        self.sub_conncluster = ConnectionCluster(connection_class=connection_class, max_connections=1, **params)
 
     def __del__(self):
         self.pub_conncluster.disconnect()
         self.sub_conncluster.disconnect()
 
-    @classmethod
-    def create(cls, server_urls, **kwargs):
+    @staticmethod
+    def parse_url(server_urls, **kwargs):
         if not isinstance(server_urls, (list, tuple)):
             server_urls = [server_urls]
 
@@ -32,20 +39,21 @@ class PubSubHub(object):
             args = {}
             parsed = urlparse.urlparse(url)
             virtual_host = parsed.path.strip('/') or '/'
-            args.update(host=parsed.hostname, port=parsed.port, virtual_host=virtual_host)
+            args.update({"host": parsed.hostname, "port": parsed.port,
+                         "virtual_host": virtual_host})
             if parsed.username:
-                args.update(user=parsed.username)
+                args.update({"user": parsed.username})
             if parsed.password:
-                args.update(password=parsed.password)
+                args.update({"password": parsed.password})
             if parsed.query:
                 query_args = urlparse.parse_qs(parsed.query)
                 query_args = dict(map(lambda x: (x[0], x[1][0]), query_args.items()))
                 args.update(query_args)
             if 'socket_connect_timeout' not in args:
-                args.update(socket_connect_timeout=3)
+                args.update({"socket_connect_timeout": 3})
             endpoints.append(args)
-        kwargs.update(endpoints=endpoints)
-        return cls(**kwargs)
+        kwargs.update({"endpoints": endpoints})
+        return kwargs
 
     def publish(self, msg, topic, **kwargs):
         exchange_name = topic.split('.')[0]
