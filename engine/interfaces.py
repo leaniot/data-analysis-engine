@@ -9,12 +9,17 @@ is provided in the interface itself, so that the interfaces can be subclassed)
 """
 
 import requests
-from rabbitmq_hub import PubSubHub, Pub, Sub
+from engine.rabbitmq_hub import PubSubHub, Pub, Sub
 
 class Dao():
 	"""
 	Interface (abstract class) for Data Access Operations. A DAO is an abstract dictionary in 
 	Python, where you can get access to data by indicating its sensor id.
+
+	Parameters:
+	- url:      Database Restful API url
+	- email:    User email (userid)
+	- password: User password
 
 	>>> dao = Dao(...)
 	>>> dao["sensor_id_1"] = {...} # Assigning value
@@ -81,19 +86,18 @@ class Subscriber():
 	"""
 	Interface (abstract class) for subscribing a specific rabbitmq. A subscriber provides a 
 	static method for user to overwrite their callback, which will be triggerred when rabbitmq
-	push a new message that the subscriber has subscribed. 
+	pushs a new message that the subscriber has subscribed. 
 
 	"""
 
 	def __init__(self, urls, channel):
-		h = PubSubHub.create(urls)
-		h.subscribe(channel, callback=self.callback)
-        # @h.subscribe("leaniot.realtime.data")
-        h.run()
+		h = PubSubHub(url=urls)
+		h.subscribe(channel, callback=self.sub_callback)
+		h.run()
 
 	@staticmethod
-	def callback(topic, msg):
-		print('User Callback: topic: %s, msg: %s' % (topic, msg))
+	def sub_callback(topic, msg):
+		print ("User Callback: topic: %s, msg: %s" % (topic, msg))
 
 
 
