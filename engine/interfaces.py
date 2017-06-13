@@ -97,7 +97,6 @@ class Subscriber():
 	Interface (abstract class) for subscribing a specific rabbitmq. A subscriber provides a 
 	static method for user to overwrite their callback, which will be triggerred when rabbitmq
 	pushs a new message that the subscriber has subscribed. 
-
 	"""
 
 	def __init__(self, urls, channel):
@@ -113,5 +112,14 @@ class Subscriber():
 
 class Publisher():
 	"""
-
+	Interface (abstract class) for pushing message to a specific rabbitmq. A publisher only publish
+	notifications to those who subscribed this message queue. 
 	"""
+
+	def __init__(self, urls, channel):
+		h = PubSubHub(url=urls)
+
+	@staticmethod
+	def push_notification(topic, msg):
+		# print ("User Callback: topic: %s, msg: %s" % (topic, msg))
+		pass
