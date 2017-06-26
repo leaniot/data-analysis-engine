@@ -13,10 +13,12 @@ class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 		data_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
 		email="yzg963@gmail.com",
 		password="yzg134530",
-		data_chn="leaniot.realtime.data"):
+		data_chn="leaniot.realtime.data",
+		notif_chn="leaniot.notification"):
 
 		interfaces.Subscriber.__init__(self, data_url, data_chn)
 		self.dao = interfaces.Dao(rule_url, email, password)
+		self.notif_chn = notif_chn
 
 	def check_payload(self, payload_info, payload_type, operator, obj_value):
 		"""
@@ -31,7 +33,7 @@ class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 		# Paths Map
 		# 0, temperature; 1, memory; 2, geolocation; 3, volt
 		# 4, ampere; 5, velocity; 6, diagnostic (object); 7, log
-		paths_map = [ "num", "num", ["lat", "lng"], "num", "num", "num", "obj", "obj"]
+		paths_map = [ "num", "num", ["lat", "lng"], "num", "num", "num", "obj", "obj" ]
 
 		# Get payload value
 		payload = Payload(payload_info)
@@ -51,13 +53,13 @@ class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 		else:
 			return False
 		
-	def sub_callback(self, topic, msg):
+	def sub_callback(self, channel, msg):
 		"""
 		Override the callback function of interfaces.Subscriber
 
 		"""
 
-		print ("User Callback: topic: %s, msg: %s" % (topic, msg))
+		print ("[Subscriber] channel: %s, msg: %s" % (channel, msg))
 
 		payload_type = msg["data_type"]
 		payload      = msg["payload"]
@@ -83,16 +85,15 @@ class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
 		# Check the rule
 		if self.check_payload(payload, payload_type, rule_info["rule_op"], obj_value):
 			# Push the notification to the queue if the rule check has been passed
-			# self.push_notification("")
-			print ("!!!push notification!!!")
+			self.push_notification("!!!push notification!!!")
+			# print ("!!!push notification!!!")
 
 	def push_notification(self, msg):
 		"""
 		Override the push notification function of interfaces.Publisher
 
 		"""
-
-		pass
+		self.publish(self.notif_chn, msg)
 		
 
 
