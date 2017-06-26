@@ -100,13 +100,13 @@ class Subscriber():
 	"""
 
 	def __init__(self, urls, channel):
-		h = PubSubHub(url=urls)
-		h.subscribe(channel, callback=self.sub_callback)
-		h.run()
+		self.h = PubSubHub(url=urls)
+		self.h.subscribe(channel, callback=self.sub_callback)
+		self.h.run()
 
 	@staticmethod
-	def sub_callback(topic, msg):
-		print ("User Callback: topic: %s, msg: %s" % (topic, msg))
+	def sub_callback(channel, msg):
+		print ("[Subscriber] channel: %s, msg: %s" % (channel, msg))
 
 
 
@@ -116,10 +116,9 @@ class Publisher():
 	notifications to those who subscribed this message queue. 
 	"""
 
-	def __init__(self, urls, channel):
-		h = PubSubHub(url=urls)
+	def __init__(self, urls):
+		self.h = PubSubHub(url=urls)
 
-	@staticmethod
-	def push_notification(topic, msg):
-		# print ("User Callback: topic: %s, msg: %s" % (topic, msg))
-		pass
+	def publish(self, channel, msg):
+		print ("[Publisher] channel: %s, msg: %s" % (channel, msg))
+		self.h.publish(msg, channel)
