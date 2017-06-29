@@ -72,6 +72,11 @@ class RuleChecker(Checker):
 
 	@staticmethod
 	def get_payload_value(payload, payload_type):
+		"""
+		Get Paylaod Value
+
+
+		"""
 		payload_map = {
 			"0": "number", "1": "number", "2": "gps", "3": "number", 
 			"4": "number", "5": "number", "6": "diag", "7":"log"
@@ -86,6 +91,11 @@ class RuleChecker(Checker):
 
 	@staticmethod
 	def get_3rd_value(trd_party_name):
+		"""
+		Get Third Party Value
+
+		"""
+		# todo:
 		return 0
 
 
@@ -204,38 +214,3 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		"""
 
 		print ("[Online Data] channel: %s, msg: %s" % (channel, msg))
-
-
-# class Payload():
-# 	"""
-# 	Payload class is designed for easily getting access to the values that we attempt to 
-# 	measure. You can reach the value by calling:
-
-# 	>>> payload = Payload(payload_info) # payload_info is the content of payload field
-# 	>>> values  = payload[paths] # paths can be 'num', 'obj', or a list of paths
-# 	"""
-
-# 	def __init__(self, payload_info):
-# 		self.payload_info = payload_info
-
-# 	def __getitem__(self, paths):
-# 		"""
-# 		Paths is an array of paths of resources. Each path can determine an unique value in
-# 		the payload. A path is a series of keys which are delimited by commas.
-
-# 		"""
-# 		# Return the payload directly if it was a numerical value
-# 		if paths == "num":
-# 			return self.payload_info
-# 		# Return None if it was an unresolved object
-# 		elif paths == "obj":
-# 			return None
-# 		# Return the value by the series keys if the paths is a list
-# 		elif type(paths) == list:
-# 			values = []
-# 			for path in paths:
-# 				payload_val = self.payload_info
-# 				for key in path.strip().split(","):
-# 					payload_val = payload_val[key]
-# 				values.append(payload_val)
-# 			return values
