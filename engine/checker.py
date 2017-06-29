@@ -1,4 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import arrow
 from engine import interfaces
+
+"""
+This module defines all kinds of checker that we could apply on the sensor data.
+
+Particularly, class Checker is an abstract class that provides basic functions like subscribing
+data stream, publishing notifications and data accessing API. There are two instantiable classes 
+RuleChecker and FeatureChecker are able to use.
+"""
 
 class RuleChecker(Checker):
 	"""
@@ -62,7 +74,13 @@ class RuleChecker(Checker):
 			(operator == "ge" and payload_value >= self.target_val) or \
 			(operator == "le" and payload_value <= self.target_val) or \
 			(operator == "eq" and payload_value == self.target_val)):
-			return True, None
+			response = { 
+				"rule_info": lib_info
+				"payload_val": payload_value, 
+				"target_val": self.target_val, 
+				"timestamp": arrow.now()
+			}
+			return True, response
 		else:
 			return False, None
 
@@ -110,6 +128,7 @@ class RuleChecker(Checker):
 		The function gets real-time data from a specific 3rd party data source.
 		"""
 		# TODO:
+		
 		return 0
 
 
