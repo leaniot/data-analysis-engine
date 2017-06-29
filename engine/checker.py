@@ -1,146 +1,241 @@
 from engine import interfaces
 
-class RuleChecker(interfaces.Subscriber, interfaces.Publisher):
+class RuleChecker(Checker):
 	"""
 	Rule Checker
 
 
+	"""
+
+	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
+
+		Checker.__init__(self, dao_url, sub_url, pub_url, \
+			email, password, data_chn, notif_chn)
+		self.target_val      = None
+		self.target_sensorid = None
+		self.target_3rd      = None
+
+	def check(self, payload_type, payload, lib_info):
+		"""
+		Check Rules: Overriding of the check in class Checker
+
+
+		"""
+
+		# Get payload value
+		payload_value = self.get_payload_value(payload, payload_type)
+
+		# Parse lib_info (rule)
+		# 1. [Rule type]: "value", "sensor", "trd_party"
+		#    <value>     means the rule would compare the payload with a indicated value by an
+		#                indicated operator.
+		#    <sensor>    means the rule would compare the payload with the payload of real-time
+		#                data of another indicated sensor by an indicated operator.
+		#    <trd_party> means the rule would compare the payload with a trd party data source
+		#                by an indicated operator.
+		if lib_info["rule_type"] == "value":
+			self.target_val = float(lib_info["rule_obj"])
+		elif lib_info["rule_type"] == "sensor":
+			self.target_sensorid = str(lib_info["rule_obj"])
+		elif lib_info["rule_type"] == "trd_party":
+			self.target_3rd = str(lib_info["rule_obj"])
+			self.target_val = self.get_3rd_value(self.target_3rd)
+		else:
+			raise Exception("Invalid rule type.")
+
+		# 2. [Rule Operator]: "gt", "lt", "ge", "le", "eq"
+		operator = lib_info["rule_op"]
+		if (self.target_val != None) and (\
+			(operator == "gt" and payload_value > self.target_val) or \
+			(operator == "lt" and payload_value < self.target_val) or \
+			(operator == "ge" and payload_value >= self.target_val) or \
+			(operator == "le" and payload_value <= self.target_val) or \
+			(operator == "eq" and payload_value == self.target_val)):
+			return True, None
+		else:
+			return False, None
+
+	def online_data_callback(self, channel, msg):
+		"""
+		Overriding of the online_data_callback in class Checker
+
+
+		"""
+
+		sensor_id    = msg["sensor_id"]
+		payload      = msg["payload"]
+		payload_type = msg["data_type"]
+		# If the sensor id was the specified one in the rule object,
+		# then get the online real-time payload value of this sensor.
+		if sensor_id == self.target_sensorid:
+			self.target_val = self.get_payload_value(payload, payload_type)
+
+	@staticmethod
+	def get_payload_value(payload, payload_type):
+		payload_map = {
+			"0": "number", "1": "number", "2": "gps", "3": "number", 
+			"4": "number", "5": "number", "6": "diag", "7":"log"
+		}
+		if payload_map[str(payload_type)] == "number":
+			return float(payload)
+		# todo: add parsing process for "gps", "diag" and "log"
+		else: 
+			print ("Unsupported payload type: %s" % payload_map[str(payload_type)])
+			return None
+
+
+	@staticmethod
+	def get_3rd_value(trd_party_name):
+		return 0
+
+
+
+class FeatureChecker(Checker):
+	"""
+	Feature Checker
 
 	"""
 
+	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
+
+		Checker.__init__(self, dao_url, sub_url, pub_url, \
+			email, password, data_chn, notif_chn)
+
+
+
+class Checker(interfaces.Subscriber, interfaces.Publisher):
+	"""
+	Checker
+
+	An abstract base class for building any kinds of checkers for online real-time data stream. 
+	It inherits some properties from two interfaces, Subscriber and Publisher, which means
+	this function can receive the latest real-time data from data channel and publish messages 
+	to notification channel. You have to define the 'check' function to do the specific checking
+	procedure on the real-time data, and give the body of notifications if you need to build
+	your checker by inheriting this abstract class. 
+
+	TODO: in the next version, email (username) and password are essential to be provieded for  
+	starting a checker for the corresponding user. Only permitted users (who have purchased or  
+	subscribed checking service) could be able to maintain a checker service for supervising 
+	their real-time online data.
+
+	Params:
+	[dao_url]: url for the database of library that you're going to refer.
+	[sub_url]: url for the data message queue
+	[pub_url]: url for the notification message queue 
+	"""
+
 	def __init__(self, 
-		rule_url="http://www.mageia.me/api/1.0.0/event_rules/",
-		data_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
+		dao_url="http://www.mageia.me/api/1.0.0/event_rules/",
+		sub_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
+		pub_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
 		email="yzg963@gmail.com",
 		password="yzg134530",
 		data_chn="leaniot.realtime.data",
 		notif_chn="leaniot.notification"):
 
-		interfaces.Subscriber.__init__(self, data_url, data_chn)
-		self.dao = interfaces.Dao(rule_url, email, password)
+		interfaces.Subscriber.__init__(self, sub_url, data_chn)
+		interfaces.Publisher.__init__(self, pub_url)
+		self.dao = interfaces.Dao(dao_url, email, password)
+		self.data_chn  = data_chn
 		self.notif_chn = notif_chn
-
-	def check_payload(self, payload_info, payload_type, operator, obj_value):
-		"""
-		Check Payload
-
-		This function would parse the payload data by the 'paths_map', and 
-		get the values that needs to be compared with object values. 
-		"""
-
-		# todo: move paths_map to config file
-
-		# Paths Map
-		# 0, temperature; 1, memory; 2, geolocation; 3, volt
-		# 4, ampere; 5, velocity; 6, diagnostic (object); 7, log
-		paths_map = [ "num", "num", ["lat", "lng"], "num", "num", "num", "obj", "obj" ]
-
-		# Get payload value
-		payload = Payload(payload_info)
-		payload_value = payload[paths_map[payload_type]]
-		# todo: check the geolocation type data in the future.
-		#       return false (without check) if payload values are lat and lng
-		if payload_value == 2 or payload_type == 6 or payload_type == 7:
-			return False
-
-		# Rule operator: "gt", "lt", "ge", "le", "eq"
-		if (operator == "gt" and payload_value > obj_value) or \
-			(operator == "lt" and payload_value < obj_value) or \
-			(operator == "ge" and payload_value >= obj_value) or \
-			(operator == "le" and payload_value <= obj_value) or \
-			(operator == "eq" and payload_value == obj_value):
-			return True
-		else:
-			return False
 		
 	def sub_callback(self, channel, msg):
 		"""
-		Override the callback function of interfaces.Subscriber
+		Overriding of the callback function of interfaces.Subscriber
 
+		This method receives real-time data stream from the data channel, meanwhile it also 
+		retrieves the corresponding library item by the indicated sensor id. Abstract private  
+		method 'check' would be invoked to validate the content (payload) of the current real-time
+		data if it conformed to any of its constrains (rules in libray). Finally, this method
+		would publish a notification to notification channel if anyone of the constrains has 
+		been triggerred.    
 		"""
 
-		print ("[Subscriber] channel: %s, msg: %s" % (channel, msg))
+		# todo: Only check one specific user's rules which would be indicated by the passing 
+		# email and password
 
-		payload_type = msg["data_type"]
-		payload      = msg["payload"]
-		rule_info    = self.dao[msg["sensor_id"]]
+		payload_type = msg["data_type"]           # Payload type
+		payload      = msg["payload"]             # Payload field of real-time data stream
+		lib_info     = self.dao[msg["sensor_id"]] # Rules/Feature Library Information
 
 		# check if there is a existed rule for the current sensor
-		if not bool(rule_info):
+		if not bool(lib_info):
+			print ("Invalid Library item. Sensor Id: %s" % msg["sensor_id"])
 			return 
 
-		# Get object by rule type
-		# Rule type: "value", "sensor", "trd_party"
-		if rule_info["rule_type"] == "value":
-			try:
-				obj_value = int(rule_info["rule_obj"])
-			except ValueError:
-				print ("Error!")
-		elif rule_info["rule_type"] == "sensor" or rule_info["rule_type"] == "trd_party":
-			obj_value = rule_info["rule_obj"]
-			# todo: connect to other trd party sources
-		else:
-			raise Exception("Invalid rule type.")
-
-		# Check the rule
-		if self.check_payload(payload, payload_type, rule_info["rule_op"], obj_value):
+		# Check the data by its payload and its corresponding library information
+		assertion, response_msg = self.check(payload_type, payload, lib_info)
+		if assertion:
 			# Push the notification to the queue if the rule check has been passed
-			self.push_notification("!!!push notification!!!")
-			# print ("!!!push notification!!!")
+			self.push_notification(response_msg)
+
+		# Online data callback for doing other data processing based on the real-time data stream
+		self.online_data_callback(channel, msg)
 
 	def push_notification(self, msg):
 		"""
-		Override the push notification function of interfaces.Publisher
+		Overriding of the push notification function of interfaces.Publisher
 
+		This method would publish the passing message to the specific notification channel.
 		"""
+
 		self.publish(self.notif_chn, msg)
-		
 
-
-# class FeatureChecker(interfaces.Subscriber, interfaces.Publisher):
-# 	pass
-
-
-
-class Payload():
-	"""
-	Payload class is designed for easily getting access to the values that we attempt to 
-	measure. You can reach the value by calling:
-
-	>>> payload = Payload(payload_info) # payload_info is the content of payload field
-	>>> values  = payload[paths] # paths can be 'num', 'obj', or a list of paths
-
-	"""
-
-	def __init__(self, payload_info):
-		self.payload_info = payload_info
-
-	def __getitem__(self, paths):
+	def check(self, payload_type, payload, lib_info):
 		"""
-		Paths is an array of paths of resources. Each path can determine an unique value in
-		the payload. A path is a series of keys which are delimited by commas.
+		Check
 
+		An empty (abstract) function that needs to be overrided to check if the payload conformed 
+		to the constrains in the library information (lib_info). If it did, then assert it to be 
+		true and return a response that would be published to the notification channel. 
 		"""
-		# Return the payload directly if it was a numerical value
-		if paths == "num":
-			return self.payload_info
-		# Return None if it was an unresolved object
-		elif paths == "obj":
-			return None
-		# Return the value by the series keys if the paths is a list
-		elif type(paths) == list:
-			values = []
-			for path in paths:
-				payload_val = self.payload_info
-				for key in path.strip().split(","):
-					payload_val = payload_val[key]
-				values.append(payload_val)
-			return values
+
+		print ("Please override this function. Payload: %s, payload type: %s, library info: %s" % \
+			payload, payload_type, lib_info)
+		return False, None
+
+	def online_data_callback(self, channel, msg):
+		"""
+		Online Data Callback
+
+		An empty (abstract) function that needs to be overrided if you want to get the online 
+		real-time data to do some further process, like monitoring the real-time data.
+		"""
+
+		print ("[Online Data] channel: %s, msg: %s" % (channel, msg))
 
 
+# class Payload():
+# 	"""
+# 	Payload class is designed for easily getting access to the values that we attempt to 
+# 	measure. You can reach the value by calling:
 
-if __name__ == "__main__":
+# 	>>> payload = Payload(payload_info) # payload_info is the content of payload field
+# 	>>> values  = payload[paths] # paths can be 'num', 'obj', or a list of paths
+# 	"""
 
-	rc = RuleChecker()
-	while True:
-		pass
+# 	def __init__(self, payload_info):
+# 		self.payload_info = payload_info
+
+# 	def __getitem__(self, paths):
+# 		"""
+# 		Paths is an array of paths of resources. Each path can determine an unique value in
+# 		the payload. A path is a series of keys which are delimited by commas.
+
+# 		"""
+# 		# Return the payload directly if it was a numerical value
+# 		if paths == "num":
+# 			return self.payload_info
+# 		# Return None if it was an unresolved object
+# 		elif paths == "obj":
+# 			return None
+# 		# Return the value by the series keys if the paths is a list
+# 		elif type(paths) == list:
+# 			values = []
+# 			for path in paths:
+# 				payload_val = self.payload_info
+# 				for key in path.strip().split(","):
+# 					payload_val = payload_val[key]
+# 				values.append(payload_val)
+# 			return values
