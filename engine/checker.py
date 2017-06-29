@@ -128,7 +128,7 @@ class RuleChecker(Checker):
 		The function gets real-time data from a specific 3rd party data source.
 		"""
 		# TODO:
-		
+
 		return 0
 
 
@@ -211,8 +211,10 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		# Check the data by its payload and its corresponding library information
 		assertion, response_msg = self.check(payload_type, payload, lib_info)
 		if assertion:
-			# Push the notification to the queue if the rule check has been passed
-			self.push_notification(response_msg)
+			# TODO: Save the notification message to database
+			if lib_info["is_push"]:
+				# Push the notification to the queue if the rule check has been passed
+				self.push_notification(response_msg)
 
 		# Online data callback for doing other data processing based on the real-time data stream
 		self.online_data_callback(channel, msg)
