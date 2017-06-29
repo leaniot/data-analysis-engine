@@ -4,7 +4,16 @@ class RuleChecker(Checker):
 	"""
 	Rule Checker
 
+	Rule checker is a child class of class Checker. It mainly overrides 'check' function for
+	doing specific checking process, and 'online_data_callback' function for checking other 
+	traffic if the rule type is 'sensor' (which means the checker has to compare the sensor
+	data with another real-time sensor data). It also provides a function for getting any 3rd
+	party data source which would be used if the rule type was trd_party.
 
+	Once the object has been substantiated, the data subscriber, the notification publisher and
+	the rules checker would start to work immediately. Ideally, every user (a specific email 
+	password) would maintain an individuous checker service, which would be easily to deploy
+	distributely. 
 	"""
 
 	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
@@ -19,7 +28,9 @@ class RuleChecker(Checker):
 		"""
 		Check Rules: Overriding of the check in class Checker
 
-
+		check function would parse the content of lib_info to get the rule information, with the 
+		help of that, it would determine how to check the value of the payload of the real-time  
+		sensor data and whether to publish a notification or not. 
 		"""
 
 		# Get payload value
@@ -59,7 +70,9 @@ class RuleChecker(Checker):
 		"""
 		Overriding of the online_data_callback in class Checker
 
-
+		This function would be invoked in the process of 'sub_callback' which would be triggerred if 
+		there was a new sensor data comes in. This function would get another copy of the new comming
+		data and extract the value of the target sensor data.
 		"""
 
 		sensor_id    = msg["sensor_id"]
@@ -75,7 +88,7 @@ class RuleChecker(Checker):
 		"""
 		Get Paylaod Value
 
-
+		The funciton parses the payload to get the value of the sensor data. 
 		"""
 		payload_map = {
 			"0": "number", "1": "number", "2": "gps", "3": "number", 
@@ -83,7 +96,7 @@ class RuleChecker(Checker):
 		}
 		if payload_map[str(payload_type)] == "number":
 			return float(payload)
-		# todo: add parsing process for "gps", "diag" and "log"
+		# TODO: add parsing process for "gps", "diag" and "log"
 		else: 
 			print ("Unsupported payload type: %s" % payload_map[str(payload_type)])
 			return None
@@ -94,8 +107,9 @@ class RuleChecker(Checker):
 		"""
 		Get Third Party Value
 
+		The function gets real-time data from a specific 3rd party data source.
 		"""
-		# todo:
+		# TODO:
 		return 0
 
 
@@ -103,6 +117,7 @@ class RuleChecker(Checker):
 class FeatureChecker(Checker):
 	"""
 	Feature Checker
+
 
 	"""
 
@@ -162,7 +177,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		been triggerred.    
 		"""
 
-		# todo: Only check one specific user's rules which would be indicated by the passing 
+		# TODO: Only check one specific user's rules which would be indicated by the passing 
 		# email and password
 
 		payload_type = msg["data_type"]           # Payload type
