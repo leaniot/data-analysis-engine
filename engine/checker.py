@@ -12,141 +12,6 @@ data stream, publishing notifications and data accessing API. There are two inst
 RuleChecker and FeatureChecker are able to use.
 """
 
-class RuleChecker(Checker):
-	"""
-	Rule Checker
-
-	Rule checker is a child class of class Checker. It mainly overrides 'check' function for
-	doing specific checking process, and 'online_data_callback' function for checking other 
-	traffic if the rule type is 'sensor' (which means the checker has to compare the sensor
-	data with another real-time sensor data). It also provides a function for getting any 3rd
-	party data source which would be used if the rule type was trd_party.
-
-	Once the object has been substantiated, the data subscriber, the notification publisher and
-	the rules checker would start to work immediately. Ideally, every user (a specific email 
-	password) would maintain an individuous checker service, which would be easily to deploy
-	distributely. 
-	"""
-
-	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
-
-		Checker.__init__(self, dao_url, sub_url, pub_url, \
-			email, password, data_chn, notif_chn)
-		self.target_val      = None
-		self.target_sensorid = None
-		self.target_3rd      = None
-
-	def check(self, payload_type, payload, lib_info):
-		"""
-		Check Rules: Overriding of the check in class Checker
-
-		check function would parse the content of lib_info to get the rule information, with the 
-		help of that, it would determine how to check the value of the payload of the real-time  
-		sensor data and whether to publish a notification or not. 
-		"""
-
-		# Get payload value
-		payload_value = self.get_payload_value(payload, payload_type)
-
-		# Parse lib_info (rule)
-		# 1. [Rule type]: "value", "sensor", "trd_party"
-		#    <value>     means the rule would compare the payload with a indicated value by an
-		#                indicated operator.
-		#    <sensor>    means the rule would compare the payload with the payload of real-time
-		#                data of another indicated sensor by an indicated operator.
-		#    <trd_party> means the rule would compare the payload with a trd party data source
-		#                by an indicated operator.
-		if lib_info["rule_type"] == "value":
-			self.target_val = float(lib_info["rule_obj"])
-		elif lib_info["rule_type"] == "sensor":
-			self.target_sensorid = str(lib_info["rule_obj"])
-		elif lib_info["rule_type"] == "trd_party":
-			self.target_3rd = str(lib_info["rule_obj"])
-			self.target_val = self.get_3rd_value(self.target_3rd)
-		else:
-			raise Exception("Invalid rule type.")
-
-		# 2. [Rule Operator]: "gt", "lt", "ge", "le", "eq"
-		operator = lib_info["rule_op"]
-		if (self.target_val != None) and (\
-			(operator == "gt" and payload_value > self.target_val) or \
-			(operator == "lt" and payload_value < self.target_val) or \
-			(operator == "ge" and payload_value >= self.target_val) or \
-			(operator == "le" and payload_value <= self.target_val) or \
-			(operator == "eq" and payload_value == self.target_val)):
-			response = { 
-				"rule_info": lib_info
-				"payload_val": payload_value, 
-				"target_val": self.target_val, 
-				"timestamp": arrow.now()
-			}
-			return True, response
-		else:
-			return False, None
-
-	def online_data_callback(self, channel, msg):
-		"""
-		Overriding of the online_data_callback in class Checker
-
-		This function would be invoked in the process of 'sub_callback' which would be triggerred if 
-		there was a new sensor data comes in. This function would get another copy of the new comming
-		data and extract the value of the target sensor data.
-		"""
-
-		sensor_id    = msg["sensor_id"]
-		payload      = msg["payload"]
-		payload_type = msg["data_type"]
-		# If the sensor id was the specified one in the rule object,
-		# then get the online real-time payload value of this sensor.
-		if sensor_id == self.target_sensorid:
-			self.target_val = self.get_payload_value(payload, payload_type)
-
-	@staticmethod
-	def get_payload_value(payload, payload_type):
-		"""
-		Get Paylaod Value
-
-		The funciton parses the payload to get the value of the sensor data. 
-		"""
-		payload_map = {
-			"0": "number", "1": "number", "2": "gps", "3": "number", 
-			"4": "number", "5": "number", "6": "diag", "7":"log"
-		}
-		if payload_map[str(payload_type)] == "number":
-			return float(payload)
-		# TODO: add parsing process for "gps", "diag" and "log"
-		else: 
-			print ("Unsupported payload type: %s" % payload_map[str(payload_type)])
-			return None
-
-
-	@staticmethod
-	def get_3rd_value(trd_party_name):
-		"""
-		Get Third Party Value
-
-		The function gets real-time data from a specific 3rd party data source.
-		"""
-		# TODO:
-
-		return 0
-
-
-
-class FeatureChecker(Checker):
-	"""
-	Feature Checker
-
-
-	"""
-
-	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
-
-		Checker.__init__(self, dao_url, sub_url, pub_url, \
-			email, password, data_chn, notif_chn)
-
-
-
 class Checker(interfaces.Subscriber, interfaces.Publisher):
 	"""
 	Checker
@@ -196,6 +61,8 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		been triggerred.    
 		"""
 
+		print ("\nReceived data from sensor: %s" % msg["sensor_id"])
+
 		# TODO: Only check one specific user's rules which would be indicated by the passing 
 		# email and password
 
@@ -205,7 +72,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 
 		# check if there is a existed rule for the current sensor
 		if not bool(lib_info):
-			print ("Invalid Library item. Sensor Id: %s" % msg["sensor_id"])
+			print ("There is no library item for sensor Id: %s" % msg["sensor_id"])
 			return 
 
 		# Check the data by its payload and its corresponding library information
@@ -250,3 +117,144 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		"""
 
 		print ("[Online Data] channel: %s, msg: %s" % (channel, msg))
+
+
+
+class RuleChecker(Checker):
+	"""
+	Rule Checker
+
+	Rule checker is a child class of class Checker. It mainly overrides 'check' function for
+	doing specific checking process, and 'online_data_callback' function for checking other 
+	traffic if the rule type is 'sensor' (which means the checker has to compare the sensor
+	data with another real-time sensor data). It also provides a function for getting any 3rd
+	party data source which would be used if the rule type was trd_party.
+
+	Once the object has been substantiated, the data subscriber, the notification publisher and
+	the rules checker would start to work immediately. Ideally, every user (a specific email 
+	password) would maintain an individuous checker service, which would be easy to deploy them
+	distributely. 
+	"""
+
+	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
+
+		Checker.__init__(self, dao_url, sub_url, pub_url, \
+			email, password, data_chn, notif_chn)
+		self.target_val      = None
+		self.target_sensorid = None
+		self.target_3rd      = None
+		# Definitions of all the enumerate variables
+		self.rule_op_enum_map   = ["gt", "lt", "ge", "le", "eq"]
+		self.rule_type_enum_map = ["value", "sensor", "trd_party"]
+		self.payload_enum_map = ["number", "number", "gps", "number", "number", "number", "diag", "log"]
+
+	def check(self, payload_type, payload, lib_info):
+		"""
+		Check Rules: Overriding of the check in class Checker
+
+		check function would parse the content of lib_info to get the rule information, with the 
+		help of that, it would determine how to check the value of the payload of the real-time  
+		sensor data and whether to publish a notification or not. 
+		"""
+
+		print ("Received payload: %s,\tpayload type: %s" % (payload, payload_type))
+		print ("Rule's type: %s,\toperator: %s,\ttarget value:%s" % (\
+				self.rule_type_enum_map[lib_info["rule_type"]], \
+				self.rule_op_enum_map[lib_info["rule_op"]], \
+				lib_info["rule_obj"]))
+		# Get payload value
+		payload_value = self.get_payload_value(payload, payload_type)
+
+		# Parse lib_info (rule)
+		# 1. [Rule type]: "value", "sensor", "trd_party"
+		#    <value>     means the rule would compare the payload with a indicated value by an
+		#                indicated operator.
+		#    <sensor>    means the rule would compare the payload with the payload of real-time
+		#                data of another indicated sensor by an indicated operator.
+		#    <trd_party> means the rule would compare the payload with a trd party data source
+		#                by an indicated operator.
+		rule_type = self.rule_type_enum_map[lib_info["rule_type"]]
+		if rule_type == "value":
+			self.target_val = float(lib_info["rule_obj"])
+		elif rule_type == "sensor":
+			self.target_sensorid = str(lib_info["rule_obj"])
+		elif rule_type == "trd_party":
+			self.target_3rd = str(lib_info["rule_obj"])
+			self.target_val = self.get_3rd_value(self.target_3rd)
+		else:
+			raise Exception("Invalid rule type: %s." % lib_info["rule_type"])
+
+		# 2. [Rule Operator]: "gt", "lt", "ge", "le", "eq"
+		operator = self.rule_op_enum_map[lib_info["rule_op"]]
+		if (self.target_val != None) and (\
+			(operator == "gt" and payload_value > self.target_val) or \
+			(operator == "lt" and payload_value < self.target_val) or \
+			(operator == "ge" and payload_value >= self.target_val) or \
+			(operator == "le" and payload_value <= self.target_val) or \
+			(operator == "eq" and payload_value == self.target_val)):
+			response = { 
+				"rule_info": lib_info,
+				"payload_val": payload_value, 
+				"target_val": self.target_val, 
+				"timestamp": str(arrow.now())
+			}
+			return True, response
+		else:
+			return False, None
+
+	def online_data_callback(self, channel, msg):
+		"""
+		Overriding of the online_data_callback in class Checker
+
+		This function would be invoked in the process of 'sub_callback' which would be triggerred if 
+		there was a new sensor data comes in. This function would get another copy of the new comming
+		data and extract the value of the target sensor data.
+		"""
+
+		sensor_id    = msg["sensor_id"]
+		payload      = msg["payload"]
+		payload_type = msg["data_type"]
+		# If the sensor id was the specified one in the rule object,
+		# then get the online real-time payload value of this sensor.
+		if sensor_id == self.target_sensorid:
+			self.target_val = self.get_payload_value(payload, payload_type)
+
+	def get_payload_value(self, payload, payload_type):
+		"""
+		Get Paylaod Value
+
+		The funciton parses the payload to get the value of the sensor data. 
+		"""
+		
+		if self.payload_enum_map[payload_type] == "number":
+			return float(payload)
+		# TODO: add parsing process for "gps", "diag" and "log"
+		else: 
+			print ("Unsupported payload type: %s" % self.payload_enum_map[str(payload_type)])
+			return None
+
+
+	@staticmethod
+	def get_3rd_value(trd_party_name):
+		"""
+		Get Third Party Value
+
+		The function gets real-time data from a specific 3rd party data source.
+		"""
+		# TODO:
+
+		return 0
+
+
+
+class FeatureChecker(Checker):
+	"""
+	Feature Checker
+
+
+	"""
+
+	def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
+
+		Checker.__init__(self, dao_url, sub_url, pub_url, \
+			email, password, data_chn, notif_chn)
