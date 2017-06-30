@@ -95,7 +95,7 @@ Once the engine detects the anomaly that we predefined in the libraries, it woul
 
 ```json
 {
-    "lib_info": // Library Informtion from Rule/Feature/... Database (e.g. below is a rule)
+    "lib_info": // "Library Informtion from Rule/Feature/... Database (e.g. below is a rule)"
         {
             "observers": [],                     // "User ids who have subscribed this rule/feature/..."
             "updated_at": "2017-06-13 10:16:45", // "latest updated time of the item of the library"
