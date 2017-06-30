@@ -58,7 +58,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		method 'check' would be invoked to validate the content (payload) of the current real-time
 		data if it conformed to any of its constrains (rules in libray). Finally, this method
 		would publish a notification to notification channel if anyone of the constrains has 
-		been triggerred.    
+		been triggerred.
 		"""
 
 		print ("\nReceived data from sensor: %s" % msg["sensor_id"])
@@ -105,7 +105,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		"""
 
 		print ("Please override this function. Payload: %s, payload type: %s, library info: %s" % \
-			payload, payload_type, lib_info)
+			(payload, payload_type, lib_info))
 		return False, None
 
 	def online_data_callback(self, channel, msg):
@@ -179,7 +179,7 @@ class RuleChecker(Checker):
 		elif rule_type == "sensor":
 			self.target_sensorid = str(lib_info["rule_obj"])
 		elif rule_type == "trd_party":
-			self.target_3rd = str(lib_info["rule_obj"])
+			self.target_3rd = lib_info["rule_obj"]
 			self.target_val = self.get_3rd_value(self.target_3rd)
 		else:
 			raise Exception("Invalid rule type: %s." % lib_info["rule_type"])
@@ -233,13 +233,12 @@ class RuleChecker(Checker):
 			print ("Unsupported payload type: %s" % self.payload_enum_map[str(payload_type)])
 			return None
 
-
 	@staticmethod
-	def get_3rd_value(trd_party_name):
+	def get_3rd_value(trd_party_info):
 		"""
 		Get Third Party Value
 
-		The function gets real-time data from a specific 3rd party data source.
+		The function gets real-time data from an indicated 3rd party data source.
 		"""
 		# TODO:
 

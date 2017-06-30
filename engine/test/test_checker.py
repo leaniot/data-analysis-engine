@@ -1,6 +1,9 @@
 from engine import checker
 
-# Substantiate class RuleChecker
+# Test abstract class Checker
+# checker = checker.Checker()
+
+# Test class RuleChecker
 checker = checker.RuleChecker(
 	dao_url="http://www.mageia.me/api/1.0.0/event_rules/",
 	sub_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
