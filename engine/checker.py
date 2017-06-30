@@ -48,6 +48,15 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		self.dao = interfaces.Dao(dao_url, email, password)
 		self.data_chn  = data_chn
 		self.notif_chn = notif_chn
+
+	def __del__(self):
+		"""
+		Release the memory of the object, and stop the connections to the message queue
+		"""
+
+		print ("Stopping the checker service ...")
+		# Stop the connections to the message queue
+		del self.h
 		
 	def sub_callback(self, channel, msg):
 		"""
