@@ -49,14 +49,24 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 		self.data_chn  = data_chn
 		self.notif_chn = notif_chn
 
-	def __del__(self):
+	def stop(self):
 		"""
-		Release the memory of the object, and stop the connections to the message queue
+		Stop the connections to the message queue
 		"""
 
 		print ("Stopping the checker service ...")
 		# Stop the connections to the message queue
-		del self.h
+		self.hs.__del__()
+		self.hp.__del__()
+
+	def start(self):
+		"""
+		Start the connections to the message queue
+		"""
+
+		print ("Starting the checker service ...")
+		# Start the connections to the message queue
+		self.hs.run()
 		
 	def sub_callback(self, channel, msg):
 		"""

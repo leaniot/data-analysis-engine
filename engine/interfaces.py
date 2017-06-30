@@ -100,9 +100,9 @@ class Subscriber():
 	"""
 
 	def __init__(self, urls, channel):
-		self.h = PubSubHub(url=urls)
-		self.h.subscribe(channel, callback=self.sub_callback)
-		self.h.run()
+		self.hs = PubSubHub(url=urls)
+		self.hs.subscribe(channel, callback=self.sub_callback)
+		self.hs.run()
 
 	@staticmethod
 	def sub_callback(channel, msg):
@@ -117,8 +117,8 @@ class Publisher():
 	"""
 
 	def __init__(self, urls):
-		self.h = PubSubHub(url=urls)
+		self.hp = PubSubHub(url=urls)
 
 	def publish(self, channel, msg):
 		print ("[Publisher] channel: %s, msg: %s" % (channel, msg))
-		self.h.publish(msg, channel)
+		self.hp.publish(msg, channel)
