@@ -23,16 +23,16 @@ The real-time online data stream that we received from subscribed Message Queue 
 
 ```json
 {
-    "id": "5956025b9e8663418ba82101",       // Data id
-    "created": "2017-06-30T07:48:43.506Z",  // Created at
-    "modified": "2017-06-30T07:48:43.506Z", // Updated at
-    "project_id": "udBwnHWWSJ4G6uwQPmeUgD", // Project id
-    "device_id": "as3geiqZyb79XjYLTnraMX",  // Device id
-    "sensor_id": "Rpgs86ACCxA7497XvgeCzD",  // Sensor id
-    "timestamp": 1498808923155,             // Timestamp when the data has been updated
-    "payload": 28.562,                      // Payload of the data that we need to check
-    "data_type": 0,                         // A enumerate value that defines the what kinds of data the payload is
-    "desc": "28.6 ℃ (83.4 ℉)"               // A brief text description for the payload value
+    "id": "5956025b9e8663418ba82101",       // "Data id"
+    "created": "2017-06-30T07:48:43.506Z",  // "Created at"
+    "modified": "2017-06-30T07:48:43.506Z", // "Updated at"
+    "project_id": "udBwnHWWSJ4G6uwQPmeUgD", // "Project id"
+    "device_id": "as3geiqZyb79XjYLTnraMX",  // "Device id"
+    "sensor_id": "Rpgs86ACCxA7497XvgeCzD",  // "Sensor id"
+    "timestamp": 1498808923155,             // "Timestamp when the data has been updated"
+    "payload": 28.562,                      // "Payload of the data that we need to check"
+    "data_type": 0,                         // "A enumerate value that defines the what kinds of data the payload is"
+    "desc": "28.6 ℃ (83.4 ℉)"               // "A brief text description for the payload value"
 }
 ```
 
@@ -95,18 +95,19 @@ Once the engine detects the anomaly that we predefined in the libraries, it woul
 
 ```json
 {
-    "rule_info": // 
+    "lib_info": // Library Informtion from Rule/Feature/... Database (e.g. below is a rule)
         {
-            "observers": [], 
-            "updated_at": "2017-06-13 10:16:45", 
-            "rule_type": 0, 
-            "rule_op": 0, 
-            "sensor": "Rpgs86ACCxA7497XvgeCzD", 
-            "is_push": True, "rule_obj": "20", 
+            "observers": [],                     // "User ids who have subscribed this rule/feature/..."
+            "updated_at": "2017-06-13 10:16:45", // "latest updated time of the item of the library"
+            "rule_type": 0,                      // "An enumerate value for type of the rule"
+            "rule_op": 0,                        // "An enumerate value for operation of the rule"
+            "sensor": "Rpgs86ACCxA7497XvgeCzD",  // "Id of the sensor that the rule applies to"
+            "is_push": True, 
+            "rule_obj": "20", 
             "id": "bKV5ckU7AdLWmmrg2EtLiU"
         }, 
-    "payload_val": 28.687, 
-    "target_val": 20.0, 
-    "timestamp": "2017-06-30T15:26:46.647567+08:00"
+    "payload_val": 28.687,   // "The value of the payload that the engine checks"
+    "target_val": 20.0,      // "The target value of the library item indicates"
+    "timestamp": "2017-06-30T15:26:46.647567+08:00"  // "The created time of the notification"
 }
 ```

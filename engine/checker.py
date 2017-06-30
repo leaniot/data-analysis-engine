@@ -193,7 +193,7 @@ class RuleChecker(Checker):
 			(operator == "le" and payload_value <= self.target_val) or \
 			(operator == "eq" and payload_value == self.target_val)):
 			response = { 
-				"rule_info": lib_info,
+				"lib_info": lib_info,
 				"payload_val": payload_value, 
 				"target_val": self.target_val, 
 				"timestamp": str(arrow.now())
