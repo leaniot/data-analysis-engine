@@ -111,3 +111,7 @@ Once the engine detects the anomaly that we predefined in the libraries, it woul
     "timestamp": "2017-06-30T15:26:46.647567+08:00"  // "The created time of the notification"
 }
 ```
+
+### About Data Persistent Layer and Data Mining Framework
+
+![data_analysis_engine_sys](https://github.com/leaniot/data-analysis-engine/blob/master/img/Data%20Storage.png)

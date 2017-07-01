@@ -56,6 +56,8 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 
 		print ("Stopping the checker service ...")
 		# Stop the connections to the message queue
+		# TODO: currently, it is an invalid method to stop the connection. I have to ask Zhiyi how
+		# do this job correctly.
 		self.hs.__del__()
 		self.hp.__del__()
 
