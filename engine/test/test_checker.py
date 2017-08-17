@@ -4,8 +4,8 @@ from engine import checker
 # Test abstract class Checker
 checker = checker.Checker()
 # Test destruction of the checker object (stop checker service)
-time.sleep(100)
-checker.stop()
+# time.sleep(100)
+# checker.stop()
 
 # Test class RuleChecker
 # checker = checker.RuleChecker(
@@ -18,4 +18,5 @@ checker.stop()
 # 	notif_chn="leaniot.notification")
 
 while True:
-	pass
+    pass
+

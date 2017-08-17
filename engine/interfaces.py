@@ -80,7 +80,7 @@ class Dao():
 		token service
 		"""
 
-		url  = "http://mageia.me/api/1.0.0/token/obtain/"
+		url  = "http://119.254.211.60:8000/api/1.0.0/token/obtain/"
 		json = { "email": email, "password": password }
 		headers = { "Content-Type": "application/json" }
 		r = requests.post(url=url, headers=headers, json=json)

@@ -34,8 +34,8 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 	[pub_url]: url for the notification message queue 
 	"""
 
-	def __init__(self, 
-		dao_url="http://www.mageia.me/api/1.0.0/event_rules/",
+	def __init__(self,
+        dao_url="http://119.254.211.60:8000/api/1.0.0/event_rules/",
 		sub_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
 		pub_url="pubsub://leaniot:leaniot@119.254.211.60:5672/",
 		email="yzg963@gmail.com",
