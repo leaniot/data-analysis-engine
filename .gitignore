@@ -1,5 +1,5 @@
 .idea
-build
-dist
 __pycache__
-holmes.egg-info
+build/
+dist/
+holmes.egg-info/
