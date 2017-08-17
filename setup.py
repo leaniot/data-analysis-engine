@@ -9,7 +9,7 @@ setup(
 	packages=find_packages(),
 	install_requires=[
 		'arrow',
-		'requests'，
+		'requests',
 		'amqp'
 	],
 	zip_safe=False)
