@@ -71,7 +71,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         logger.info ("Starting the checker service ...")
         # Start the connections to the message queue
         self.hs.run()
-        
+
     def sub_callback(self, channel, msg):
         """
         Overriding of the callback function of interfaces.Subscriber
@@ -84,12 +84,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         been triggerred.
         """
 
-        try:
-            msg = json.loads(msg)
-        except ValueError as e:
-            logger.error(e)
-            return
-
+        logger.info(msg)
         logger.info("\nReceived data from sensor: %s" % msg["sensor_id"])
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
