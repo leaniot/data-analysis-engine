@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 import arrow
 from engine import interfaces, settings, logger
 
@@ -83,7 +84,12 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         been triggerred.
         """
 
-        logger.info(msg)
+        try:
+            msg = json.loads(msg)
+        except ValueError as e:
+            logger.error(e)
+            return
+
         logger.info("\nReceived data from sensor: %s" % msg["sensor_id"])
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
