@@ -84,9 +84,8 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         been triggerred.
         """
 
-        logger.info(msg)
         msg = json.loads(msg.decode('utf-8'))
-        logger.info ("\nReceived data from sensor: %s" % msg["sensor_id"])
+        logger.info ("\nReceived payload: %s from sensor: %s", msg.get('payload'), msg.get('sensor_id'))
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
         # email and password
@@ -144,7 +143,6 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         logger.info ("[Online Data] channel: %s, msg: %s" % (channel, msg))
 
 
-
 class RuleChecker(Checker):
     """
     Rule Checker
@@ -163,8 +161,8 @@ class RuleChecker(Checker):
 
     def __init__(self, dao_url, sub_url, pub_url, email, password, data_chn, notif_chn):
 
-        Checker.__init__(self, dao_url, sub_url, pub_url, \
-            email, password, data_chn, notif_chn)
+        # Checker.__init__(self, dao_url, sub_url, pub_url, \
+        #     email, password, data_chn, notif_chn)
         self.target_val      = None
         self.target_sensorid = None
         self.target_3rd      = None
@@ -172,6 +170,7 @@ class RuleChecker(Checker):
         self.rule_op_enum_map   = ["gt", "lt", "ge", "le", "eq"]
         self.rule_type_enum_map = ["value", "sensor", "trd_party"]
         self.payload_enum_map = ["number", "number", "gps", "number", "number", "number", "diag", "log"]
+        super(RuleChecker, self,).__init__(dao_url, sub_url, pub_url, email, password, data_chn, notif_chn)
 
     def check(self, payload_type, payload, lib_info):
         """
