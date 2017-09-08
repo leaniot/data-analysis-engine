@@ -7,9 +7,9 @@ logging_config = dict(
         'f': {'format': '[%(levelname)s] %(asctime)s %(name)s [%(lineno)d] %(message)s'}
     },
     handlers={
-        'h': {'class': 'logging.StreamHandler', 'formatter': 'f', 'level': logging.DEBUG}
+        'h': {'class': 'logging.StreamHandler', 'formatter': 'f', 'level': logging.INFO}
     },
-    root={'handlers': ['h'], 'level': logging.DEBUG}
+    root={'handlers': ['h'], 'level': logging.INFO}
 )
 dictConfig(logging_config)
 logger = logging.getLogger('analysis')

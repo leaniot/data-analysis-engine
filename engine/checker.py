@@ -171,6 +171,7 @@ class RuleChecker(Checker):
         self.rule_type_enum_map = ["value", "sensor", "trd_party"]
         self.payload_enum_map = ["number", "number", "gps", "number", "number", "number", "diag", "log"]
         super(RuleChecker, self,).__init__(dao_url, sub_url, pub_url, email, password, data_chn, notif_chn)
+        logger.info(self.__dict__)
 
     def check(self, payload_type, payload, lib_info):
         """
