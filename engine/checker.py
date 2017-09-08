@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import arrow
+import json
 from engine import interfaces, settings, logger
 
 """
@@ -84,7 +85,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         """
 
         logger.info(msg)
-        msg = msg.decode('utf-8')
+        msg = json.loads(msg.decode('utf-8'))
         logger.info ("\nReceived data from sensor: %s" % msg["sensor_id"])
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
