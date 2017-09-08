@@ -10,6 +10,7 @@ is provided in the interface itself, so that the interfaces can be subclassed)
 
 import requests
 from engine.rabbitmq_hub import PubSubHub, Pub, Sub
+from engine import settings
 
 # # These two lines enable debugging at httplib level (requests->urllib3->http.client)
 # # You will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
@@ -81,7 +82,7 @@ class Dao():
         token service
         """
 
-        url  = "http://119.254.211.60:8000/api/1.0.0/token/obtain/"
+        url  = settings.TOKEN_URL
         json = { "email": email, "password": password }
         headers = { "Content-Type": "application/json" }
         r = requests.post(url=url, headers=headers, json=json)
