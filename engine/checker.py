@@ -83,6 +83,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         been triggerred.
         """
 
+        logger.info(msg)
         logger.info ("\nReceived data from sensor: %s" % msg["sensor_id"])
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
