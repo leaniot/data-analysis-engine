@@ -3,6 +3,7 @@
 
 import arrow
 import json
+from collections import defaultdict
 from engine import interfaces, settings, logger
 
 """
@@ -85,7 +86,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         """
 
         msg = json.loads(msg.decode('utf-8'))
-        logger.info ("\nReceived payload: %s from sensor: %s", msg.get('payload'), msg.get('sensor_id'))
+        logger.info("Received payload: %s from sensor: %s", msg.get('payload'), msg.get('sensor_id'))
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
         # email and password
@@ -96,7 +97,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
 
         # check if there is a existed rule for the current sensor
         if not bool(lib_info):
-            logger.info ("There is no library item for sensor Id: %s" % msg["sensor_id"])
+            # logger.info ("There is no library item for sensor Id: %s" % msg["sensor_id"])
             return 
 
         # Check the data by its payload and its corresponding library information
@@ -169,7 +170,8 @@ class RuleChecker(Checker):
         # Definitions of all the enumerate variables
         self.rule_op_enum_map   = ["gt", "lt", "ge", "le", "eq"]
         self.rule_type_enum_map = ["value", "sensor", "trd_party"]
-        self.payload_enum_map = ["number", "number", "gps", "number", "number", "number", "diag", "log"]
+        payload_enum_map = ["number", "number", "gps", "number", "number", "number", "diag", "log"]
+        self.payload_enum_map = defaultdict(lambda _: "number" if _ > len(payload_enum_map) else payload_enum_map[_])
         super(RuleChecker, self,).__init__(dao_url, sub_url, pub_url, email, password, data_chn, notif_chn)
         logger.info(self.__dict__)
 
