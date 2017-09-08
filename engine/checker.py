@@ -84,6 +84,7 @@ class Checker(interfaces.Subscriber, interfaces.Publisher):
         """
 
         logger.info(msg)
+        msg = msg.encode('utf-8')
         logger.info ("\nReceived data from sensor: %s" % msg["sensor_id"])
 
         # TODO: Only check one specific user's rules which would be indicated by the passing 
