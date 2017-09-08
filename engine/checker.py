@@ -186,8 +186,8 @@ class RuleChecker(Checker):
 
         logger.info ("Received payload: %s,\tpayload type: %s" % (payload, payload_type))
         logger.info ("Rule's type: %s,\toperator: %s,\ttarget value:%s" % (\
-                self.rule_type_enum_map[lib_info["rule_type"]], \
-                self.rule_op_enum_map[lib_info["rule_op"]], \
+                self.rule_type_enum_map[int(lib_info["rule_type"])], \
+                self.rule_op_enum_map[int(lib_info["rule_op"])], \
                 lib_info["rule_obj"]))
         # Get payload value
         payload_value = self.get_payload_value(payload, payload_type)
@@ -200,7 +200,7 @@ class RuleChecker(Checker):
         #                data of another indicated sensor by an indicated operator.
         #    <trd_party> means the rule would compare the payload with a trd party data source
         #                by an indicated operator.
-        rule_type = self.rule_type_enum_map[lib_info["rule_type"]]
+        rule_type = self.rule_type_enum_map[int(lib_info["rule_type"])]
         if rule_type == "value":
             self.target_val = float(lib_info["rule_obj"])
         elif rule_type == "sensor":
